@@ -93,9 +93,11 @@ function setup(tech) {
 };
 
 function setup_search() {
-    const trees = document.querySelector('#tech-tree').querySelectorAll('.Treant');
+    const trees = document.querySelector('#tech-tree').querySelectorAll("[id|='tech-tree']");
 
-    let nodes = Array.from(trees).reduce((a, b) => { a.push(...b.querySelectorAll('.node.tech')); return a; }, []);
+    let nodes = Array.from(trees).filter((t) => {
+        return t.getAttribute("class") == null || !t.getAttribute("class").includes("float-NoDisplay");
+    }).reduce((a, b) => { a.push(...b.querySelectorAll('.node.tech')); return a; }, []);
     nodes = nodes.reduce((a, b) =>  {
         let the_text = '';
         b.querySelectorAll('.node-name, .extra-data .tooltip-content:not(.prerequisites)').forEach(data => {
@@ -117,6 +119,7 @@ function setup_search() {
     };
 
     let current_idx = 0;
+    current_idx = 0;
     let last_search_term = "";
     $("#deepsearch").on("change keyup paste", debounce(function () {
         const search_term = $('#deepsearch').val();
@@ -139,6 +142,8 @@ function setup_search() {
 
             return match;
         });
+
+        console.log(hits.length);
 
 
         hits.sort((a, b) => {
@@ -185,6 +190,7 @@ function setup_search() {
                 return; 
             }
 
+            hits[current_idx % hits.length].node.style.opacity = 0.6;
             let current_focused = hits[(current_idx + 1) % hits.length].node;
             current_focused.scrollIntoView({
                 behavior: "smooth",
@@ -192,8 +198,6 @@ function setup_search() {
                 inline: "nearest",
               });
             current_focused.style.opacity = 1;
-
-            hits[current_idx % hits.length].node.style.opacity = 0.6;
 
             current_idx += 1;
         }
